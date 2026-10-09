@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Finland</title>
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+    </header>
+    <main>
+        <section id="breadcrumbs" class="col-10 mx-auto my-3"><a href="index.html">首頁</a><span>&nbsp;/&nbsp;極光預報</span>
+        </section>
+        <section class="col-10 mx-auto my-3">
+            <div class="card card-body text-center">
+                <form id="search" class="row">
+                </form>
+            </div>
+        </section>
+        <article class="col-10 mx-auto my-3 card card-body" id="result" style="overflow-x: auto;">
+        </article>
+    </main>
+    <footer class="bg-secondary text-center">
+        <p>第 19 屆全國身心障礙者技能競賽 設計者：Web67</p>
+    </footer>
+</body>
+
+</html>
+<script src="jqueryv4.0.0.js"></script>
+<script src="bootstrap.js"></script>
+<script src="main.js"></script>
+<script>
+    function render() {
+        let locations
+        let html = ""
+        $.post("api.php", {action: "forecast_get"}, function (res) {
+            locations = JSON.parse(res)
+            $("#result").text("if you want to data than you must need some action :)")
+            window['lang'] = localStorage.getItem("lang") ?? "zh-tw"
+            if (window['lang'] == "en") {
+                html += `<option value="all">All Locations</option>`
+                locations.forEach((row) => {
+                    html += `<option value="${row['name_en']}">${row['name_en']}</option>`
+                });
+                $("#breadcrumbs").html(`<a href="index.html" tabindex="0">Home</a><span tabindex="0">&nbsp;/&nbsp;Aurora Forecast</span>`)
+                $("#search").html(`
+                <div class="col">
+                            <label for="locations">Location</label>
+                            <select name="locations" id="locations" class="form-control"></select>
+                        </div>
+                        <div class="col">
+                            <label for="month">Month</label>
+                            <input type="month" name="month" id="month" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="order">Sorting Order</label>
+                            <select name="order" id="order" class="form-control">
+                                <option value="kp_index+asc">Kp Index(accessing)</option>
+                                <option value="kp_index+desc">Kp Index(deccending)</option>
+                                <option value="cloud_cover+asc">Cloud Cover(accessing)</option>
+                                <option value="cloud_cover+desc">Cloud Cover(deccending)</option>
+                                <option value="aurora_probability+asc">Aurora Probability(accessing)</option>
+                                <option value="aurora_probability+desc">Aurora Probability(deccending)</option>
+                                <option value="best_time+asc">Best Time(accessing)</option>
+                                <option value="best_time+desc">Best Time(deccending)</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="layout">layout</label>
+                            <select name="layout" id="layout" class="form-control">
+                                <option value="card">Card</option>
+                                <option value="table">Table</option>
+                            </select>
+                        </div>
+                        <div class="col-auto"><button class="btn btn-primary">Search</button></div>
+                        `)
+            } else {
+                html += `<option value="all">所有地點</option>`
+                locations.forEach((row) => {
+                    html += `<option value="${row['name_en']}">${row['name']}</option>`
+                });
+                $("#result").text("要得名就要行動")
+                $("#breadcrumbs").html(`<a href="index.html" tabindex="0">首頁</a><p tabindex="0">&nbsp;/&nbsp;極光預報</p>`)
+                $("#search").html(`
+                <div class="col">
+                            <label for="locations">地點</label>
+                            <select name="locations" id="locations" class="form-control"></select>
+                        </div>
+                        <div class="col">
+                            <label for="month">月份</label>
+                            <input type="month" name="month" id="month" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="order">排列順序</label>
+                            <select name="order" id="order" class="form-control">
+                                <option value="kp_index+asc">Kp 指數(升冪)</option>
+                                <option value="kp_index+desc">Kp 指數(降冪)</option>
+                                <option value="cloud_cover+asc">雲量(升冪)</option>
+                                <option value="cloud_cover+desc">雲量(降冪)</option>
+                                <option value="aurora_probability+asc">極光機率(升冪)</option>
+                                <option value="aurora_probability+desc">極光機率(降冪)</option>
+                                <option value="best_time+asc">最佳觀賞時間(升冪)</option>
+                                <option value="best_time+desc">最佳觀賞時間(降冪)</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="layout">呈現方式</label>
+                            <select name="layout" id="layout" class="form-control">
+                                <option value="card">卡片</option>
+                                <option value="table">表格</option>
+                            </select>
+                        </div>
+                        <div class="col-auto"><button class="btn btn-primary">查詢</button></div>
+                        `)
+            }
+
+            $("#locations").html(html)
+        })
+    }
+    render()
+
+    function table(data) {
+        console.log(data);
+        
+        let html = "<table class='table'>"
+        if (window['lang'] == "en") {
+            const COLS = [
+                [`name_en`, "Name", ""],
+                [`kp_index`, "Kp Index", ""],
+                [`cloud_cover`, "Cloud cover", "%"],
+                [`aurora_probability`, "Aurora Probability", "%"],
+                [`best_time`, "Best time", ""],
+                [`recommendation`, "Recommendation", ""],
+                [`temperature`, "Temperature", "℃"],
+                [`note`, "Note", ""],
+                [`updated_at`, "Updated_at", ""],
+            ]
+            html += `
+           <tr>
+            ${COLS.map(([key, value, suffix]) => {
+                return `<th>${value}</th>`
+            }).join("")}</tr>`
+            data.forEach((row) => {
+                html += `<tr>${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<td tabindex="0">${empty()}</td>`
+                    if (key == "note") return `<td tabindex="0">${cut(val)}</td>`
+                    if (key == "recommendation") return `<td tabindex="0">${level(row)}</td>`
+                    else return `<td tabindex="0">${val + suffix}</td>`
+                }).join("")}</tr>`
+            })
+        } else {
+            const COLS = [
+                [`name`, "地點名稱", ""],
+                [`kp_index`, "Kp 指數", ""],
+                [`cloud_cover`, "雲量", "%"],
+                [`aurora_probability`, "極光機率", "%"],
+                [`best_time`, "最佳觀賞時間", ""],
+                [`recommendation`, "推薦程度", ""],
+                [`temperature`, "溫度", "℃"],
+                [`note`, "簡短備註", ""],
+                [`updated_at`, "更新時間", ""],
+            ]
+            html += `
+           <tr>
+            ${COLS.map(([key, value, suffix]) => {
+                return `<th>${value}</th>`
+            }).join("")}</tr>`
+            data.forEach((row) => {
+                html += `<tr>${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<td tabindex="0">${empty()}</td>`
+                    if (key == "note") return `<td tabindex="0">${cut(val)}</td>`
+                    if (key == "recommendation") return `<td tabindex="0">${level(row)}</td>`
+                    else return `<td>${val + suffix}</td tabindex="0">`
+                }).join("")}</tr>`
+            })
+        }
+        html += `</table>`
+        $("#result").html(html)
+    }
+    function card(data) {
+        console.log(data);
+        
+        let html = "<div class='row row-cols-md-2 row-cols-1'>"
+        if (window['lang'] == "en") {
+            const COLS = [
+                [`name_en`, "Name", ""],
+                [`kp_index`, "Kp Index", ""],
+                [`cloud_cover`, "Cloud cover", "%"],
+                [`aurora_probability`, "Aurora Probability", "%"],
+                [`best_time`, "Best time", ""],
+                [`recommendation`, "Recommendation", ""],
+                [`temperature`, "Temperature", "℃"],
+                [`note`, "Note", ""],
+                [`updated_at`, "Updated_at", ""],
+            ]
+            data.forEach((row) => {
+                html += `<div class="col p-1"><div class="card card-body">${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<p tabindex="0">${value+":<br>"+empty()}</p>`
+                    if (key == "note") return `<p tabindex="0">${value+":<br>"+cut(val)}</p>`
+                    if (key == "recommendation") return `<p tabindex="0">${value+":<br>"+level(row)}</p>`
+                    else return `<p tabindex="0">${value+":<br>"+val + suffix}</p>`
+                }).join("")}</div></div>`
+            })
+        } else {
+            const COLS = [
+                [`name`, "地點名稱", ""],
+                [`kp_index`, "Kp 指數", ""],
+                [`cloud_cover`, "雲量", "%"],
+                [`aurora_probability`, "極光機率", "%"],
+                [`best_time`, "最佳觀賞時間", ""],
+                [`recommendation`, "推薦程度", ""],
+                [`temperature`, "溫度", "℃"],
+                [`note`, "簡短備註", ""],
+                [`updated_at`, "更新時間", ""],
+            ]
+            data.forEach((row) => {
+                html += `<div class="col p-1"><div class="card card-body">${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<p tabindex="0">${value+":<br>"+empty()}</p>`
+                    if (key == "note") return `<p tabindex="0">${value+":<br>"+cut(val)}</p>`
+                    if (key == "recommendation") return `<p tabindex="0">${value+":<br>"+level(row)}</p>`
+                    else return `<p tabindex="0">${value+":<br>"+val + suffix}</p>`
+                }).join("")}</div></div>`
+            })
+        }
+        html += `</table>`
+        $("#result").html(html)
+    }
+    $("#search").on("submit", function (e) {
+        e.preventDefault()
+        $.post("api.php", {action: "forecast_get"}, function (res) {
+            let result = {}
+            result = JSON.parse(res)
+            const order = $("#order").val()
+            const locations = $("#locations").val()
+            const month = $("#month").val()
+            const layout = $("#layout").val()
+
+            if (locations != "all") result = result.filter((row) => row.name_en == locations)
+            if (month != "") result = result.filter((row) => row.updated_at.split("-")[1] == month.split("-")[1])
+            result = sorting(order, result)
+            if (layout == "card") card(result)
+            if (layout == "table") table(result)
+        })
+
+    })
+</script>

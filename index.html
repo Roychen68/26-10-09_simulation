@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Finland</title>
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar gap-3 d-block">
+            <div class="d-flex align-items-center">
+                <div class="logo">
+                    <img src="logo.png" alt="logo" class="logo">
+                </div>
+                <div class="titles d-lg-flex d-block align-items-center gap-3">
+                    <h1 tabindex="0">Aurora Finland</h1>
+                    <span class="slogan d-none d-md-block" tabindex="0">芬蘭極光旅遊資訊平台</span>
+                </div>
+                <div class="functions d-flex align-items-center ms-auto gap-3">
+                    <button class="navbar-toggler d-lg-none d-block" tabindex="0" data-bs-target="#nav"
+                        data-bs-toggle="collapse">
+                        <span tabindex="0" class="navbar-toggler-icon"></span>
+                    </button>
+                    <select name="theme" id="theme" class="form-control">
+                        <option value="light">🌝</option>
+                        <option value="dark">🌚</option>
+                    </select>
+                    <select name="lang" id="lang" class="form-control">
+                        <option value="en">English</option>
+                        <option value="zh-tw">中文</option>
+                    </select>
+                    <select name="font-size" id="font-size" class="form-control">
+                        <option value="14">A-</option>
+                        <option value="16">A</option>
+                        <option value="20">A+</option>
+                    </select>
+                </div>
+            </div>
+            <nav class="navbar-dropdown row show" id="nav">
+                <a href="index.html" class="link col-12 col-md-3">首頁</a>
+                <a href="forecast.html" class="link col-12 col-md-3">極光預報</a>
+                <a href="journal.html" class="link col-12 col-md-3">旅人日記</a>
+                <a href="login.html" class="link col-12 col-md-3">系統管理</a>
+            </nav>
+        </nav>
+    </header>
+    <main>
+        <section id="breadcrumbs" class="col-10 mx-auto my-3" tabindex="0"><span>首頁</span></section>
+        <section id="result" class="col-10 mx-auto my-3">
+            <div class="card card-body text-center">
+                <h2 tabindex="0">Home</h2>
+            </div>
+        </section>
+    </main>
+    <footer class="bg-secondary text-center">
+        <p>第 19 屆全國身心障礙者技能競賽 設計者：Web67</p>
+    </footer>
+</body>
+
+</html>
+<script src="jqueryv4.0.0.js"></script>
+<script src="bootstrap.js"></script>
+<script src="main.js"></script>
+<script>
+    window['lang'] = localStorage.getItem("lang") ?? "zh-tw"
+    if (window['lang'] == "en") {
+        $("h2").text("Home")
+        $("#breadcrumbs").html(`<span tabindex="0">Home</span>`)
+    } else {
+        $("h2").text("首頁")
+        $("#breadcrumbs").html(`<span tabindex="0">首頁</span>`)
+    }
+</script>

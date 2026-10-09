@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Finland</title>
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+    </header>
+    <main>
+        <section id="breadcrumbs" class="col-10 mx-auto my-3" tabindex="0"><span>首頁</span></section>
+        <section id="result" class="col-10 mx-auto my-3">
+            <div class="card card-body text-center">
+                <h2 tabindex="0">Login</h2>
+            </div>
+        </section>
+        <section class="card card-body col-10 mx-auto my-3">
+            <form id="login">
+                <div class="mb-3">
+                    <label for="username">帳號</label>
+                    <input type="text" class="form-control" name="username" id="username">  
+                </div>
+                <div class="mb-3">
+                    <label for="password">密碼</label>
+                    <input type="text" class="form-control" name="password" id="password">
+                </div>
+                <div class="mb-3">
+                    <label for="veri">驗證碼</label>
+                    <img onclick="render()" src="" alt="captcha" id="captcha" style="height: 50px;">
+                    <input type="text" class="form-control" name="veri" id="veri">
+                </div>
+                <div class="mb-3" id="button">
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer class="bg-secondary text-center">
+        <p>第 19 屆全國身心障礙者技能競賽 設計者：Web67</p>
+    </footer>
+</body>
+
+</html>
+<script src="jqueryv4.0.0.js"></script>
+<script src="bootstrap.js"></script>
+<script src="main.js"></script>
+<script>
+    let veri = 0
+    window['lang'] = localStorage.getItem("lang") ?? "zh-tw"
+    if (window['lang'] == "en") {
+        $("h2").text("Administration")
+        $("#button").html(`<button class="btn btn-primary">Login</button>`)
+        $("#breadcrumbs").html(`<a href="index.html">Home</a><span>&nbsp;/&nbsp;Administration</span>`)
+    } else {
+        $("#button").html(`<button class="btn btn-primary">登入</button>`)
+        $("h2").text("系統管理")
+        $("#breadcrumbs").html(`<a href="index.html">首頁</a><span>&nbsp;/&nbsp;系統管理</span>`)
+    }
+    function render() {
+        if (localStorage.getItem("login") == "true") {
+            location.href = "admin.html"
+        }
+        const captchas = [
+            1472,
+            1582,
+            4328,
+            9467
+        ]
+        veri = captchas[Math.floor(Math.random()*3)]
+        $("#captcha").attr("src","captcha/"+veri+".png")
+    }
+    $("#login").on("submit",function (e) {
+        e.preventDefault()
+        const form = new FormData(this)
+        console.log([...form]);
+        
+        if (form.get("username") != "admin") {
+            if (window['lang'] == "zh-tw") {
+                alert("帳號錯誤")
+            } else {
+                alert("username error")
+            }
+        } else if(form.get("password") != "1234") {
+            if (window['lang'] == "zh-tw") {
+                alert("密碼錯誤")
+            } else {
+                alert("password error")
+            }
+        } else if(form.get("veri") != veri) {
+            if (window['lang'] == "zh-tw") {
+                alert("驗證碼錯誤")
+            } else {
+                alert("captcha error")
+            }
+        } else if(form.get("username") == "admin" && form.get("password") == "1234" && form.get("veri") == veri) {
+            if (window['lang'] == "zh-tw") {
+                alert("登入成功")
+            } else {
+                alert("login success")
+            }
+            localStorage.setItem("login","true")
+            location.href = "admin.html"
+        }
+    })
+    render()
+</script>

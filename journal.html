@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Finland</title>
+    <link rel="stylesheet" href="bootstrap.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+    </header>
+    <main>
+        <section id="breadcrumbs" class="col-10 mx-auto my-3"><a href="index.html">首頁</a><span>&nbsp;/&nbsp;極光預報</span>
+        </section>
+        <section class="col-10 mx-auto my-3">
+            <div class="card card-body text-center" id="title">
+                <div>
+                    <button class="btn btn-primary" id="open">Search</button>
+                </div>
+            </div>
+        </section>
+        <article class="col-10 mx-auto my-3 p-2" id="result">
+        </article>
+    </main>
+    <div class="modal fade" id="form">
+        <div class="modal-dialog">
+            <form class="modal-content" id="diary">
+            </form>
+        </div>
+    </div>
+    <footer class="bg-secondary text-center">
+        <p>第 19 屆全國身心障礙者技能競賽 設計者：Web67</p>
+    </footer>
+</body>
+
+</html>
+<script src="jqueryv4.0.0.js"></script>
+<script src="bootstrap.js"></script>
+<script src="main.js"></script>
+<script>
+
+    function render() {
+        let locations
+        let html = ""
+        let result = {}
+        $.post("api.php", {action: "forecast_get"}, function (res) {
+            locations = JSON.parse(res)
+            $("#result").text("if you want to data than you must need some action :)")
+            window['lang'] = localStorage.getItem("lang") ?? "zh-tw"
+            if (window['lang'] == "en") {
+                $("#open").text("Submit a Journal")
+                locations.forEach((row) => {
+                    html += `<option value="${row['name_en']}">${row['name_en']}</option>`
+                });
+                $("#breadcrumbs").html(`<a href="index.html">Home</a><span>&nbsp;/&nbsp;Travelers' Journals</span>`)
+                $("#diary").html(`
+                <div class="modal-header">
+                    <h2>Travelers' Journals: A Thousand Ways to See the Light</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name">Name</label>
+                        <input required type="text" name="name" id="name" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Email">Email</label>
+                        <input required type="email" name="Email" id="Email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="location">Location</label>
+                        <select name="location" id="location" class="form-control"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date">Date</label>
+                        <input required type="date" name="date" id="date" class="form-control"  max="2026-10-09">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rate">Rate</label>
+                        <input required type="number" name="rate" id="rate" class="form-control" min="1" max="5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback">Feedback</label>
+                        <textarea name="feedback" id="feedback" class="form-control" minlength="10" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file">File</label>
+                        <input required type="File" accept=".png,.jpg,jpeg,.svg" name="file" id="file"
+                            class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Submit</button>
+                </div>`)
+            } else {
+                locations.forEach((row) => {
+                    html += `<option value="${row['name_en']}">${row['name']}</option>`
+                });
+                $("#diary").html(`
+                <div class="modal-header">
+                    <h2 tabindex="0">旅人日記：一千種看見光的方式</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name">旅人匿名</label>
+                        <input required type="text" name="name" id="name" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="Email">Email</label>
+                        <input required type="email" name="Email" id="Email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="location">觀賞地點</label>
+                        <select name="location" id="location" class="form-control"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date">觀賞日期</label>
+                        <input required type="date" name="date" id="date" class="form-control" max="2026-10-09">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rate">極光評分</label>
+                        <input required type="number" name="rate" id="rate" class="form-control" min="1" max="5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback">觀賞心得</label>
+                        <textarea name="feedback" id="feedback" class="form-control" minlength="10" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file">照片網址</label>
+                        <input required type="File" accept=".png,.jpg,jpeg,.svg" name="file" id="file"
+                            class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Submit</button>
+                </div>`)
+                $("#open").text("我要投稿")
+                $("#breadcrumbs").html(`<a href="index.html">首頁</a><span>&nbsp;/&nbsp;旅人日記</span>`)
+            }
+            $("#location").html(html)
+            const form = localStorage.getItem("form") ?? []
+            console.log(form);
+
+            JSON.parse(form).forEach(([key, value]) => {
+                console.log(key, value);
+
+                $(`input[name="${key}"]:not([type='file'])`).val(value)
+                $(`textarea[name="${key}"]`).val(value)
+            })
+        })
+        $.post("api.php", {action: "journal_get"}, function (res) {
+            result = JSON.parse(res)
+            card(result)
+        })
+    }
+    render()
+    function card(data) {
+        console.log(data);
+
+        let html = "<div class='row row-cols-md-2 row-cols-1'>"
+        if (window['lang'] == "en") {
+            const COLS = [
+                [`name`, "Name", ""],
+                [`Email`, "Email", ""],
+                [`location`, "Location", ""],
+                [`date`, "Date", ""],
+                [`rate`, "Rate", ""],
+                [`feedback`, "Feedback", ""],
+                [`file`, "File", ""],
+                [`bless`, "Bless", ""],
+                [`updated_at`, "Updated_at", ""],
+            ]
+            data.forEach((row) => {
+                html += `<div class="col p-1"><div class="card card-body">${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<p tabindex="0">${value + ":<br>" + empty()}</p>`
+                    if (key == "file") return `<img alt="${val}" src="${val}" tabindex="0">`
+                    if (key == "Email") return `<p tabindex="0" class="text-primary" style="cursor:pointer;"
+                    onclick="email('${val}')" tabindex="0">${value + ":<br>" + val.split("@")[0][0]}###@${val.split("@")[1]}</p>`
+                    else return `<p>${value + ":<br>" + val + suffix}</p>`
+                }).join("")}
+                <button class="btn btn-primary bless" data-id="${row['id']}">Bless:${row['bless']}</button>
+                </div></div>`
+            })
+        } else {
+            const COLS = [
+                [`name`, "旅人暱稱", ""],
+                [`Email`, "Email", ""],
+                [`location`, "觀賞地點", ""],
+                [`date`, "觀賞日期", ""],
+                [`rate`, "極光評分", ""],
+                [`feedback`, "觀賞心得", ""],
+                [`file`, "照片", ""],
+                [`bless`, "祝福數量", ""],
+                [`updated_at`, "更新時間", ""],
+            ]
+            data.forEach((row) => {
+                html += `<div class="col p-1"><div class="card card-body">${COLS.map(([key, value, suffix]) => {
+                    const val = row[key]
+                    if (val == null) return `<p tabindex="0">${value + ":<br>" + empty()}</p>`
+                    if (key == "file") return `<img alt="${val}" src="${val}" tabindex="0">`
+                    if (key == "Email") return `<p tabindex="0" class="text-primary" style="cursor:pointer;"
+                    onclick="email('${val}')" tabindex="0">${value + ":<br>" + val.split("@")[0][0]}###@${val.split("@")[1]}</p>`
+                    else return `<p tabindex="0">${value + ":<br>" + val + suffix}</p>`
+                }).join("")}
+                <button class="btn btn-primary bless" data-id="${row['id']}">祝福數量:${row['bless']}</button>
+                </div></div>`
+            })
+        }
+        html += `</table>`
+        $("#result").html(html)
+    }
+    $("#open").on("click", function (e) {
+        e.preventDefault()
+        $("#form").modal("show")
+    })
+    $(document).on("click", ".bless", function () {
+        $(this).prop("disabled", true)
+        const id = $(this).data("id")
+        $.post("api.php", {action: "bless", id: id}, (res) => {
+            if (window.lang == "en") {
+                $(this).text(`Bless:${res}`)
+            } else {
+                $(this).text(`祝福數量:${res}`)
+            }
+        })
+    })
+    function email() {
+        alert("這邊沒功能喔")
+    }
+    $("#diary").on("input", function () {
+        const form = new FormData(this)
+        localStorage.setItem("form", JSON.stringify([...form]))
+    })
+    $("#diary").on("submit", function (e) {
+        e.preventDefault()
+        const form = new FormData(this)
+        form.append("action", "journal_post")
+        fetch("api.php", {method: "post", body: form})
+        .then(() => {
+            alert("表單已送出")
+            $("#form").modal("hide")
+            localStorage.removeItem("form")
+            render()
+        })
+    })
+</script>
